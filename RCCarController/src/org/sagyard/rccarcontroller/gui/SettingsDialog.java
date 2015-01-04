@@ -1,7 +1,5 @@
 package org.sagyard.rccarcontroller.gui;
 
-import org.sagyard.rccarcontroller.clientlogic.DefaultClient;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;

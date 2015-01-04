@@ -1,13 +1,10 @@
 package org.sagyard.rccarcontroller.clientlogic;
 
-import android.util.Log;
-
-import android.content.SharedPreferences;
-import android.app.Activity;
-import java.net.Socket;
 import android.os.AsyncTask;
+import android.util.Log;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.Socket;
 
 public class DefaultServer implements IServer
 {
