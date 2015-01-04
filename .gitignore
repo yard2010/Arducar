@@ -22,6 +22,11 @@ Thumbs.db
 [Dd]ebug*/
 *.lib
 *.sbr
+obj/
+[Rr]elease*/
+_ReSharper*/
+[Tt]est[Rr]esult*
+*.idea
 
 # ANDROID IGNORE
 # built application files
@@ -40,11 +45,6 @@ gen/
 
 # Local configuration file (sdk path, etc)
 local.properties
-obj/
-[Rr]elease*/
-_ReSharper*/
-[Tt]est[Rr]esult*
-*.idea
 
 # ECLIPSE IGNORE
 
