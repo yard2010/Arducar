@@ -13,18 +13,18 @@ import com.zerokol.views.JoystickView.OnJoystickMoveListener;
 import java.util.HashMap;
 import java.util.Map;
 import org.sagyard.rccarcontroller.R;
-import org.sagyard.rccarcontroller.clientlogic.Constants;
-import org.sagyard.rccarcontroller.clientlogic.DefaultClient;
-import org.sagyard.rccarcontroller.clientlogic.IClient;
-import org.sagyard.rccarcontroller.clientlogic.IServer;
-import org.sagyard.rccarcontroller.clientlogic.JoystickConverter;
-import org.sagyard.rccarcontroller.clientlogic.UserInputToVelocity;
 import org.sagyard.rccarcontroller.gui.SettingsDialog.OnConfirm;
+import org.sagyard.rccarcontroller.logiclayer.Constants;
+import org.sagyard.rccarcontroller.logiclayer.injectors.DefaultClientInjector;
+import org.sagyard.rccarcontroller.logiclayer.injectors.JoystickConverterInjector;
+import org.sagyard.rccarcontroller.logiclayer.interfaces.BaseClient;
+import org.sagyard.rccarcontroller.logiclayer.interfaces.IServer;
+import org.sagyard.rccarcontroller.logiclayer.interfaces.UserInputToVelocity;
 
 public class MainActivity extends ActionBarActivity implements OnConfirm, UpdateTextStatus
 {
 	private JoystickView joystick;
-	private IClient client;
+	private BaseClient client;
 	private IServer server;
 	private UserInputToVelocity converter;
 	private TextView isConnected;
@@ -41,8 +41,8 @@ public class MainActivity extends ActionBarActivity implements OnConfirm, Update
 
 		// Is this the right place to create the "real" implementors?
 		// server = new DefaultServer(prefs.getString(Constants.IP_TAG, ""), 9080);
-		client = new DefaultClient(prefs.getString(Constants.IP_TAG, ""), 9080, this);
-		converter = new JoystickConverter();
+		converter = new JoystickConverterInjector().getConverter();
+		client = new DefaultClientInjector().getClient(prefs.getString(Constants.IP_TAG, ""), 9080, this, converter);
 
 		// Referencing also other views
 		joystick = (JoystickView) findViewById(R.id.joystickView);
@@ -52,6 +52,7 @@ public class MainActivity extends ActionBarActivity implements OnConfirm, Update
 		// Event listener that always returns the variation of the angle in degrees, motion power in percentage and direction of movement
 		joystick.setOnJoystickMoveListener(new OnJoystickMoveListener()
 		{
+			// TODO Send data in intervals, get values from variables
 			@Override
 			public void onValueChanged(int angle, int power, int direction)
 			{
@@ -59,8 +60,10 @@ public class MainActivity extends ActionBarActivity implements OnConfirm, Update
 				kwArgs.put("angle", angle);
 				kwArgs.put("power", power);
 				kwArgs.put("direction", direction);
-
-				client.sendVelocities(converter.calcVelocities(kwArgs));
+				
+				// Update the converter
+				converter.calcVelocities(kwArgs);
+				//client.sendVelocities();
 			}
 		}, JoystickView.DEFAULT_LOOP_INTERVAL);
 	}
@@ -91,7 +94,7 @@ public class MainActivity extends ActionBarActivity implements OnConfirm, Update
 	@Override
 	public void onChoose()
 	{
-		client = new DefaultClient(prefs.getString(Constants.IP_TAG, ""), 9080, this);
+		client = new DefaultClientInjector().getClient(prefs.getString(Constants.IP_TAG, ""), 9080, this, converter);
 	}
 
 	@Override

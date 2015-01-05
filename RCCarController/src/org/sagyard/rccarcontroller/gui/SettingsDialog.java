@@ -1,5 +1,7 @@
 package org.sagyard.rccarcontroller.gui;
 
+import org.sagyard.rccarcontroller.logiclayer.Constants;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -8,7 +10,6 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.EditText;
-import org.sagyard.rccarcontroller.clientlogic.Constants;
 
 public class SettingsDialog extends DialogFragment
 {
