@@ -1,4 +1,4 @@
-package org.sagyard.rccarcontroller.clientlogic;
+package org.sagyard.rccarcontroller.logiclayer.interfaces;
 
 public interface IServer
 {

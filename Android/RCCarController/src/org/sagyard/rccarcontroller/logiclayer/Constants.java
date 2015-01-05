@@ -1,9 +1,10 @@
-package org.sagyard.rccarcontroller.clientlogic;
+package org.sagyard.rccarcontroller.logiclayer;
 
 public class Constants
 {
 	public static final int maxVelocity = 100;
 	public static final int minVelocity = -100;
+	public static final int DEFAULT_UPDATE_INTERVAL = 5;
 	
 	public static float clamp(float val, float min, float max) {
 	    return Math.max(min, Math.min(max, val));

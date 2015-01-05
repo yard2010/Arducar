@@ -1,11 +1,18 @@
-package org.sagyard.rccarcontroller.clientlogic;
+package org.sagyard.rccarcontroller.logiclayer.implementations;
 
+import org.sagyard.rccarcontroller.logiclayer.Constants;
+
+import org.sagyard.rccarcontroller.logiclayer.interfaces.UserInputToVelocity;
 import android.graphics.Point;
 import java.util.Map;
 
-public class JoystickConverter implements UserInputToVelocity
+public class JoystickConverter extends UserInputToVelocity
 {
 	private final float moveSpeed = 100;
+	
+	public JoystickConverter() {
+		currentVelocitives = new Point();
+	}
 
 	private Point getXYAxis(int angle, int power)
 	{
@@ -23,17 +30,25 @@ public class JoystickConverter implements UserInputToVelocity
 	}
 
 	@Override
-	public Point calcVelocities(Map<String, Object> kwArgs)
+	public void calcVelocities(Map<String, Object> kwArgs)
 	{
 		int angle = (int) kwArgs.get("angle");
 		int power = (int) kwArgs.get("power");
 		// int direction = (int) kwArgs.get("direction");
 
 		Point joystickPosition = getXYAxis(angle, power);
-		return new Point((int) Constants.clamp(joystickPosition.x,
+		
+		// Update
+		currentVelocitives = new Point((int) Constants.clamp(joystickPosition.x,
 				Constants.minVelocity,
 				Constants.maxVelocity), (int) Constants.clamp(joystickPosition.y,
 				Constants.minVelocity,
 				Constants.maxVelocity));
+	}
+
+	@Override
+	public Point getCurrentVelocities()
+	{
+		return currentVelocitives;
 	}
 }

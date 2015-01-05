@@ -1,4 +1,6 @@
-package org.sagyard.rccarcontroller.clientlogic;
+package org.sagyard.rccarcontroller.logiclayer.implementations;
+
+import org.sagyard.rccarcontroller.logiclayer.interfaces.IServer;
 
 import android.os.AsyncTask;
 import android.util.Log;

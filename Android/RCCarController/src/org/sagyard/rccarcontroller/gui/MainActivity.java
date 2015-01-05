@@ -3,7 +3,6 @@ package org.sagyard.rccarcontroller.gui;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
@@ -21,7 +20,7 @@ import org.sagyard.rccarcontroller.logiclayer.interfaces.BaseClient;
 import org.sagyard.rccarcontroller.logiclayer.interfaces.IServer;
 import org.sagyard.rccarcontroller.logiclayer.interfaces.UserInputToVelocity;
 
-public class MainActivity extends ActionBarActivity implements OnConfirm, UpdateTextStatus
+public class MainActivity extends Activity implements OnConfirm, UpdateTextStatus
 {
 	private JoystickView joystick;
 	private BaseClient client;
@@ -36,19 +35,19 @@ public class MainActivity extends ActionBarActivity implements OnConfirm, Update
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-
 		prefs = getSharedPreferences(Constants.SHARED_PREFS_TAG, Activity.MODE_PRIVATE);
-
 		// Is this the right place to create the "real" implementors?
 		// server = new DefaultServer(prefs.getString(Constants.IP_TAG, ""), 9080);
 		converter = new JoystickConverterInjector().getConverter();
-		client = new DefaultClientInjector().getClient(prefs.getString(Constants.IP_TAG, ""), 9080, this, converter);
-
+		client =
+				new DefaultClientInjector().getClient(prefs.getString(Constants.IP_TAG, ""),
+						9080,
+						this,
+						converter);
 		// Referencing also other views
 		joystick = (JoystickView) findViewById(R.id.joystickView);
 		videoStream = (VideoView) findViewById(R.id.videoStream);
 		isConnected = (TextView) findViewById(R.id.isConnected);
-
 		// Event listener that always returns the variation of the angle in degrees, motion power in percentage and direction of movement
 		joystick.setOnJoystickMoveListener(new OnJoystickMoveListener()
 		{
@@ -60,10 +59,9 @@ public class MainActivity extends ActionBarActivity implements OnConfirm, Update
 				kwArgs.put("angle", angle);
 				kwArgs.put("power", power);
 				kwArgs.put("direction", direction);
-				
 				// Update the converter
 				converter.calcVelocities(kwArgs);
-				//client.sendVelocities();
+				// client.sendVelocities();
 			}
 		}, JoystickView.DEFAULT_LOOP_INTERVAL);
 	}
@@ -94,7 +92,11 @@ public class MainActivity extends ActionBarActivity implements OnConfirm, Update
 	@Override
 	public void onChoose()
 	{
-		client = new DefaultClientInjector().getClient(prefs.getString(Constants.IP_TAG, ""), 9080, this, converter);
+		client =
+				new DefaultClientInjector().getClient(prefs.getString(Constants.IP_TAG, ""),
+						9080,
+						this,
+						converter);
 	}
 
 	@Override
