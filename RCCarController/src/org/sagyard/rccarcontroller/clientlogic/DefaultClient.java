@@ -1,7 +1,8 @@
 package org.sagyard.rccarcontroller.clientlogic;
 
-import android.graphics.Point;
+import org.sagyard.rccarcontroller.gui.UpdateTextStatus;
 
+import android.graphics.Point;
 import android.os.AsyncTask;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -13,7 +14,7 @@ public class DefaultClient implements IClient
 	private Socket client;
 	private boolean isConnected;
 
-	public DefaultClient(final String dstName, final int dstPort)
+	public DefaultClient(final String dstName, final int dstPort, final UpdateTextStatus updater)
 	{
 		AsyncTask.execute(new Runnable()
 		{
@@ -35,6 +36,12 @@ public class DefaultClient implements IClient
 					isConnected = false;
 					e.printStackTrace();
 				}
+				
+				updater.getActivity().runOnUiThread(new Runnable() {
+				    public void run() {
+				    	updater.updateStatus();
+				    }
+				}); 
 			}
 		});
 	}
@@ -68,6 +75,7 @@ public class DefaultClient implements IClient
 
 				// Flush data - send to server
 				output.flush();
+				Thread.sleep(1);
 
 			} catch (IOException e)
 			{

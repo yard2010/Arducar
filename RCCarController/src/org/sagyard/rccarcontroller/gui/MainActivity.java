@@ -21,7 +21,7 @@ import org.sagyard.rccarcontroller.clientlogic.JoystickConverter;
 import org.sagyard.rccarcontroller.clientlogic.UserInputToVelocity;
 import org.sagyard.rccarcontroller.gui.SettingsDialog.OnConfirm;
 
-public class MainActivity extends ActionBarActivity implements OnConfirm
+public class MainActivity extends ActionBarActivity implements OnConfirm, UpdateTextStatus
 {
 	private JoystickView joystick;
 	private IClient client;
@@ -41,18 +41,13 @@ public class MainActivity extends ActionBarActivity implements OnConfirm
 
 		// Is this the right place to create the "real" implementors?
 		// server = new DefaultServer(prefs.getString(Constants.IP_TAG, ""), 9080);
-		client = new DefaultClient(prefs.getString(Constants.IP_TAG, ""), 9080);
+		client = new DefaultClient(prefs.getString(Constants.IP_TAG, ""), 9080, this);
 		converter = new JoystickConverter();
 
 		// Referencing also other views
 		joystick = (JoystickView) findViewById(R.id.joystickView);
 		videoStream = (VideoView) findViewById(R.id.videoStream);
 		isConnected = (TextView) findViewById(R.id.isConnected);
-
-		// Default value
-		isConnected.setText(client.isConnected() ? R.string.connected : R.string.disconnected);
-		isConnected.setTextColor(client.isConnected()
-				? getResources().getColor(R.color.green) : getResources().getColor(R.color.red));
 
 		// Event listener that always returns the variation of the angle in degrees, motion power in percentage and direction of movement
 		joystick.setOnJoystickMoveListener(new OnJoystickMoveListener()
@@ -96,9 +91,20 @@ public class MainActivity extends ActionBarActivity implements OnConfirm
 	@Override
 	public void onChoose()
 	{
-		client = new DefaultClient(prefs.getString(Constants.IP_TAG, ""), 9080);
+		client = new DefaultClient(prefs.getString(Constants.IP_TAG, ""), 9080, this);
+	}
+
+	@Override
+	public void updateStatus()
+	{
 		isConnected.setText(client.isConnected() ? R.string.connected : R.string.disconnected);
 		isConnected.setTextColor(client.isConnected()
 				? getResources().getColor(R.color.green) : getResources().getColor(R.color.red));
+	}
+
+	@Override
+	public Activity getActivity()
+	{
+		return this;
 	}
 }
