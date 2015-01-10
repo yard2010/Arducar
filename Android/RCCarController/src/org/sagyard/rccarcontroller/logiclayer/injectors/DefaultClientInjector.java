@@ -12,7 +12,11 @@ public class DefaultClientInjector implements ClientInjector
 	@Override
 	public BaseClient getClient(String dstName, int dstPort, UpdateTextStatus updater, UserInputToVelocity converter)
 	{
-		return new DefaultClient(dstName, dstPort, updater, converter);
+		// Connect first
+		DefaultClient.getInstance().connect(dstName, dstPort, updater, converter);
+		
+		// Return the client
+		return DefaultClient.getInstance();
 	}
 
 }

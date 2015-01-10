@@ -1,16 +1,15 @@
 package org.sagyard.rccarcontroller.logiclayer.implementations;
 
-import android.util.Log;
-
-import org.sagyard.rccarcontroller.logiclayer.interfaces.UserInputToVelocity;
 import android.graphics.Point;
 import android.os.AsyncTask;
+import android.util.Log;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
 import org.sagyard.rccarcontroller.gui.UpdateTextStatus;
 import org.sagyard.rccarcontroller.logiclayer.Constants;
 import org.sagyard.rccarcontroller.logiclayer.interfaces.BaseClient;
+import org.sagyard.rccarcontroller.logiclayer.interfaces.UserInputToVelocity;
 
 public class DefaultClient extends BaseClient
 {
@@ -18,12 +17,24 @@ public class DefaultClient extends BaseClient
 	private boolean isConnected;
 	private PrintWriter output;
 	private UserInputToVelocity converter;
-
-	public DefaultClient(final String dstName, final int dstPort, final UpdateTextStatus updater, final UserInputToVelocity converter)
+	private static DefaultClient instance;
+	
+	private DefaultClient() {}
+	
+	public static DefaultClient getInstance()
+	{
+		if (instance == null) {
+			instance = new DefaultClient();
+		}
+		
+		return instance;
+	}
+	
+	public void connect(final String dstName, final int dstPort, final UpdateTextStatus updater, final UserInputToVelocity converter)
 	{
 		this.converter = converter;
 		
-		AsyncTask.execute(new Runnable()
+		new Thread(new Runnable()
 		{
 			@Override
 			public void run()
@@ -33,6 +44,12 @@ public class DefaultClient extends BaseClient
 
 				try
 				{
+					// Close first if open
+					if (client != null && client.isConnected())
+					{
+						client.close();
+					}
+					
 					client = new Socket(dstName, dstPort);
 					output = new PrintWriter(client.getOutputStream());
 					
@@ -56,20 +73,30 @@ public class DefaultClient extends BaseClient
 					}
 				});
 			}
-		});
+		}).start();
 	}
 
 	@Override
 	protected void sendVelocities(Point velocities)
 	{
-		// TODO Change to json string
-		new SendMessage().execute("X" + String.valueOf(velocities.x), "Y" + String.valueOf(velocities.y));
+		String xVel = "X" + String.valueOf(velocities.x);
+		String yVel = "Y" + String.valueOf(velocities.y);
+		int dataLen = xVel.length() + yVel.length();
+		
+		// Send data in the following manner: LENGTH_OF_DATA, SEPERATOR, DATA
+		new SendMessage(String.valueOf(dataLen), String.valueOf(Constants.SEPERATOR), xVel, yVel).start();
 	}
 
-	private class SendMessage extends AsyncTask<String, Void, Void>
+	private class SendMessage extends Thread implements Runnable
 	{
+		String[] params;
+		
+		public SendMessage(String... params) {
+			this.params = params;
+		}
+		
 		@Override
-		protected Void doInBackground(String... params)
+		public void run()
 		{
 			// Print all params to prepare for send
 			for (String param : params)
@@ -79,8 +106,6 @@ public class DefaultClient extends BaseClient
 
 			// Flush data - send to server
 			output.flush();
-
-			return null;
 		}
 	}
 
