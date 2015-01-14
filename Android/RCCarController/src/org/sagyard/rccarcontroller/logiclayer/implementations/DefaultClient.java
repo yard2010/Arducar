@@ -81,10 +81,8 @@ public class DefaultClient extends BaseClient
 	{
 		String xVel = "X" + String.valueOf(velocities.x);
 		String yVel = "Y" + String.valueOf(velocities.y);
-		int dataLen = xVel.length() + yVel.length();
 		
-		// Send data in the following manner: LENGTH_OF_DATA, SEPERATOR, DATA
-		new SendMessage(String.valueOf(dataLen), String.valueOf(Constants.SEPERATOR), xVel, yVel).start();
+		new SendMessage(xVel, yVel).start();
 	}
 
 	private class SendMessage extends Thread implements Runnable
