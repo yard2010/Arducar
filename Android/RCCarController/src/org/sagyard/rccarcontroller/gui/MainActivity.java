@@ -36,6 +36,7 @@ public class MainActivity extends Activity implements OnConfirm, UpdateTextStatu
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		prefs = getSharedPreferences(Constants.SHARED_PREFS_TAG, Activity.MODE_PRIVATE);
+		
 		// Is this the right place to create the "real" implementors?
 		// server = new DefaultServer(prefs.getString(Constants.IP_TAG, ""), 9080);
 		converter = new JoystickConverterInjector().getConverter();
@@ -44,14 +45,15 @@ public class MainActivity extends Activity implements OnConfirm, UpdateTextStatu
 						9080,
 						this,
 						converter);
+		
 		// Referencing also other views
 		joystick = (JoystickView) findViewById(R.id.joystickView);
 		videoStream = (VideoView) findViewById(R.id.videoStream);
 		isConnected = (TextView) findViewById(R.id.isConnected);
+		
 		// Event listener that always returns the variation of the angle in degrees, motion power in percentage and direction of movement
 		joystick.setOnJoystickMoveListener(new OnJoystickMoveListener()
 		{
-			// TODO Send data in intervals, get values from variables
 			@Override
 			public void onValueChanged(int angle, int power, int direction)
 			{
@@ -59,9 +61,11 @@ public class MainActivity extends Activity implements OnConfirm, UpdateTextStatu
 				kwArgs.put("angle", angle);
 				kwArgs.put("power", power);
 				kwArgs.put("direction", direction);
+				
+//				Log.d("Arducar", String.valueOf(angle));
+				
 				// Update the converter
 				converter.calcVelocities(kwArgs);
-				// client.sendVelocities();
 			}
 		}, JoystickView.DEFAULT_LOOP_INTERVAL);
 	}

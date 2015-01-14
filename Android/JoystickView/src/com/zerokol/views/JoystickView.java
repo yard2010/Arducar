@@ -170,10 +170,14 @@ public class JoystickView extends View implements Runnable {
 			thread = new Thread(this);
 			thread.start();
 			if (onJoystickMoveListener != null)
-				onJoystickMoveListener.onValueChanged(getAngle(), getPower(),
+				onJoystickMoveListener.onValueChanged(getCustomNormalCircleAngle(), getPower(),
 						getDirection());
 		}
 		return true;
+	}
+	
+	private int getCustomNormalCircleAngle() {
+		return getAngle() * -1 + 90; // Return circle inverted and + 90 degrees so it will look "normal"
 	}
 
 	private int getAngle() {
@@ -195,9 +199,9 @@ public class JoystickView extends View implements Runnable {
 						* RAD - 90);
 			} else if (yPosition > centerY) {
 				return lastAngle = (int) (Math.atan((yPosition - centerY)
-						/ (xPosition - centerX)) * RAD) - 90;
+						/ (xPosition - centerX)) * RAD) + 270;
 			} else {
-				return lastAngle = -90;
+				return lastAngle = 270;
 			}
 		} else {
 			if (yPosition <= centerY) {
@@ -257,7 +261,7 @@ public class JoystickView extends View implements Runnable {
 			post(new Runnable() {
 				public void run() {
 					if (onJoystickMoveListener != null)
-						onJoystickMoveListener.onValueChanged(getAngle(),
+						onJoystickMoveListener.onValueChanged(getCustomNormalCircleAngle(),
 								getPower(), getDirection());
 				}
 			});
