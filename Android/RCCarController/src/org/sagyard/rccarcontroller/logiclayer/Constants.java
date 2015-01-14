@@ -4,7 +4,7 @@ public class Constants
 {
 	public static final int maxVelocity = 100;
 	public static final int minVelocity = -100;
-	public static final int DEFAULT_UPDATE_INTERVAL = 100;
+	public static final int DEFAULT_UPDATE_INTERVAL = 5;
 	public static final char SEPERATOR = ':';
 	
 	public static float clamp(float val, float min, float max) {
