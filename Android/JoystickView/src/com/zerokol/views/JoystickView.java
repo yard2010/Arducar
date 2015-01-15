@@ -177,7 +177,7 @@ public class JoystickView extends View implements Runnable {
 	}
 	
 	private int getCustomNormalCircleAngle() {
-		return getAngle() * -1 + 90; // Return circle inverted and + 90 degrees so it will look "normal"
+		return lastAngle = getAngle() * -1 + 90; // Return circle inverted and + 90 degrees so it will look "normal"
 	}
 
 	private int getAngle() {
