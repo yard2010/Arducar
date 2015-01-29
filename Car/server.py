@@ -34,11 +34,13 @@
 
 import socket
 
-SERVER_IP = "192.168.0.111"
+SERVER_IP = "192.168.0.102"
 SERVER_PORT = 9081
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.connect((SERVER_IP, SERVER_PORT))
+
+print "Connected to main server!"
 
 while True:
     data = sock.recv(1024)
