@@ -1,51 +1,55 @@
 import socket
 import threading
 
-SERVER_IP = "192.168.0.102"
+#SERVER_IP = "192.168.0.102"
+SERVER_IP = "192.168.123.169"
 SERVER_PORT = 9081
 MAX_MESSAGE_LEN = len("X-100Y-100")
 
 
 def process_input():
-    while True:
-        data = ""
-        data += sock.recv(1024)
+    is_connected = True
+    data = ""
+
+    while is_connected:
+        try:
+            data += sock.recv(1024).strip()
+        except socket.error:
+            print("Connection forcibly closed")
+            is_connected = False
+
         print "Received: {}".format(data)
-        x, y = get_velocities(data)
-
-        if None not in (x, y):
-            move_car(x, y)
+        data = parse_velocities(data)
 
 
-def get_velocities(data):
-    # Shouldn't fail here
-    if data[0] == "X":
+def parse_velocities(data):
+    # Parse all given data
+    while len(data) > 0 and data[0] == "X":
         curr_message = data[:MAX_MESSAGE_LEN]
 
         x_vel_data = curr_message.split("Y")[0]
 
         # If x data is not in data, stop
         if x_vel_data is None:
-            return
-
-        # Remove the "X" mark in the data
-        x_vel_data = x_vel_data[1:]
+            return data
 
         # Get the y data after the x. The beginning of the following message must be present to parse this
         y_vel_data = curr_message[len(x_vel_data):].split("X")[0]
 
         # If y data is not in data, stop
         if y_vel_data is None:
-            return
+            return data
 
-        # Remove the "X" mark in the data
+        # Remove the "X", "Y" mark in the data
         y_vel_data = y_vel_data[1:]
+        x_vel_data = x_vel_data[1:]
 
-        # return velocities
-        return x_vel_data, y_vel_data
-    else:
-        print "Data starts with '{0}' for some reason.. fix it".format(data[0])
-        del data
+        # Actually move the car
+        move_car(x_vel_data, y_vel_data)
+
+        # Remove message from data (+2 for the two headers removed)
+        data = data[len(y_vel_data) + len(x_vel_data) + 2:]
+    return data
 
 
 def move_car(velocity_X, velocity_y):
