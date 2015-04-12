@@ -12,4 +12,5 @@ public class Constants
 	
 	public static final String SHARED_PREFS_TAG = "ArduCarSharedPrefs";
 	public static final String IP_TAG = "IP";
+	public static final String PORT_TAG = "PORT";
 }

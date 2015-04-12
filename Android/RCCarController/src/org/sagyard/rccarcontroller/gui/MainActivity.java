@@ -1,10 +1,13 @@
 package org.sagyard.rccarcontroller.gui;
 
+import android.util.Log;
+
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.MediaController;
 import android.widget.TextView;
 import android.widget.VideoView;
 import com.zerokol.views.JoystickView;
@@ -17,14 +20,12 @@ import org.sagyard.rccarcontroller.logiclayer.Constants;
 import org.sagyard.rccarcontroller.logiclayer.injectors.DefaultClientInjector;
 import org.sagyard.rccarcontroller.logiclayer.injectors.JoystickConverterInjector;
 import org.sagyard.rccarcontroller.logiclayer.interfaces.BaseClient;
-import org.sagyard.rccarcontroller.logiclayer.interfaces.IServer;
 import org.sagyard.rccarcontroller.logiclayer.interfaces.UserInputToVelocity;
 
 public class MainActivity extends Activity implements OnConfirm, UpdateTextStatus
 {
 	private JoystickView joystick;
 	private BaseClient client;
-	private IServer server;
 	private UserInputToVelocity converter;
 	private TextView isConnected;
 	private VideoView videoStream;
@@ -36,21 +37,23 @@ public class MainActivity extends Activity implements OnConfirm, UpdateTextStatu
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		prefs = getSharedPreferences(Constants.SHARED_PREFS_TAG, Activity.MODE_PRIVATE);
-		
+
 		// Is this the right place to create the "real" implementors?
-		// server = new DefaultServer(prefs.getString(Constants.IP_TAG, ""), 9080);
 		converter = new JoystickConverterInjector().getConverter();
 		client =
 				new DefaultClientInjector().getClient(prefs.getString(Constants.IP_TAG, ""),
-						9080,
+						prefs.getInt(Constants.PORT_TAG, 0),
 						this,
 						converter);
-		
+
 		// Referencing also other views
 		joystick = (JoystickView) findViewById(R.id.joystickView);
 		videoStream = (VideoView) findViewById(R.id.videoStream);
 		isConnected = (TextView) findViewById(R.id.isConnected);
 		
+		// Start the stream
+		setupVideoStream();
+
 		// Event listener that always returns the variation of the angle in degrees, motion power in percentage and direction of movement
 		joystick.setOnJoystickMoveListener(new OnJoystickMoveListener()
 		{
@@ -61,9 +64,9 @@ public class MainActivity extends Activity implements OnConfirm, UpdateTextStatu
 				kwArgs.put("angle", angle);
 				kwArgs.put("power", power);
 				kwArgs.put("direction", direction);
-				
-//				Log.d("Arducar", String.valueOf(angle));
-				
+
+				// Log.d("Arducar", String.valueOf(angle));
+
 				// Update the converter
 				converter.calcVelocities(kwArgs);
 			}
@@ -98,9 +101,11 @@ public class MainActivity extends Activity implements OnConfirm, UpdateTextStatu
 	{
 		client =
 				new DefaultClientInjector().getClient(prefs.getString(Constants.IP_TAG, ""),
-						9080,
+						prefs.getInt(Constants.PORT_TAG, 0),
 						this,
 						converter);
+
+		setupVideoStream();
 	}
 
 	@Override
@@ -115,5 +120,20 @@ public class MainActivity extends Activity implements OnConfirm, UpdateTextStatu
 	public Activity getActivity()
 	{
 		return this;
+	}
+
+	private void setupVideoStream()
+	{
+		try {
+		MediaController mediaController = new MediaController(this);
+		mediaController.setAnchorView(videoStream);
+		mediaController.setMediaPlayer(videoStream);
+
+		videoStream.setVideoPath("http://" + prefs.getString(Constants.IP_TAG, "") + ":" + prefs.getInt(Constants.PORT_TAG, 0) + "/");
+		videoStream.setMediaController(mediaController);
+		videoStream.start();
+		} catch (NullPointerException e) {
+			Log.e("Arducar", e.getMessage());
+		}
 	}
 }
