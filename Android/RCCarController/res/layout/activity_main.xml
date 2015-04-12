@@ -8,59 +8,28 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="org.sagyard.rccarcontroller.gui.MainActivity" >
 
-    <!--
-    <Button
-        android:id="@+id/up"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:text="Up" />
-
-    <Button
-        android:id="@+id/left"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@id/up"
-        android:text="Left" />
-
-    <Button
-        android:id="@+id/right"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_below="@id/up"
-        android:text="Right" />
-
-    <Button
-        android:id="@+id/down"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/left"
-        android:layout_centerHorizontal="true"
-        android:text="Down" /> -->
-        
-        <TextView
+    <TextView
         android:id="@+id/isConnected"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
+        android:alpha="0.2"
         android:text="" />
 
     <com.zerokol.views.JoystickView
         android:id="@+id/joystickView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-		android:layout_above="@id/isConnected"
-        zerokol.views.joystickview=".zerokol.views.joystickview" />
-    
+        android:layout_above="@id/isConnected"
+        zerokol.views.joystickview=".zerokol.views.joystickview"
+        android:alpha="0.2" />
+
     <VideoView
         android:id="@+id/videoStream"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@id/joystickView"
-        android:layout_centerHorizontal="true" />
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_alignParentRight="true" 
+        android:layout_alignParentEnd="true"/>
 
 </RelativeLayout>

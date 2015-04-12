@@ -1,10 +1,13 @@
 package org.sagyard.rccarcontroller.gui;
 
-import android.util.Log;
+import android.net.Uri;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
+import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnPreparedListener;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.MediaController;
@@ -50,9 +53,13 @@ public class MainActivity extends Activity implements OnConfirm, UpdateTextStatu
 		joystick = (JoystickView) findViewById(R.id.joystickView);
 		videoStream = (VideoView) findViewById(R.id.videoStream);
 		isConnected = (TextView) findViewById(R.id.isConnected);
-		
+
 		// Start the stream
 		setupVideoStream();
+		
+		// Make sure the z index is correct (other views on top of the video stream)
+		isConnected.bringToFront();
+		joystick.bringToFront();
 
 		// Event listener that always returns the variation of the angle in degrees, motion power in percentage and direction of movement
 		joystick.setOnJoystickMoveListener(new OnJoystickMoveListener()
@@ -124,15 +131,28 @@ public class MainActivity extends Activity implements OnConfirm, UpdateTextStatu
 
 	private void setupVideoStream()
 	{
-		try {
-		MediaController mediaController = new MediaController(this);
-		mediaController.setAnchorView(videoStream);
-		mediaController.setMediaPlayer(videoStream);
+		try
+		{
+			MediaController mediaController = new MediaController(this);
+			mediaController.setAnchorView(videoStream);
+			mediaController.setMediaPlayer(videoStream);
 
-		videoStream.setVideoPath("http://" + prefs.getString(Constants.IP_TAG, "") + ":" + prefs.getInt(Constants.PORT_TAG, 0) + "/");
-		videoStream.setMediaController(mediaController);
-		videoStream.start();
-		} catch (NullPointerException e) {
+			// DEBUG for testing purposes
+//			videoStream.setVideoURI(Uri.parse("http://www.androidbegin.com/tutorial/AndroidCommercial.3gp"));
+			// DEBUG end. Uncomment code bellow
+			
+			videoStream.setVideoURI(Uri.parse("http://" + prefs.getString(Constants.IP_TAG, "") + ":" +
+					prefs.getInt(Constants.PORT_TAG, 0) + "/"));
+			videoStream.setMediaController(mediaController);
+			videoStream.setOnPreparedListener(new OnPreparedListener() {
+				@Override
+				public void onPrepared(MediaPlayer mp) {
+					// Start video when buffering is complete
+					videoStream.start();
+				}
+			});
+		} catch (Exception e)
+		{
 			Log.e("Arducar", e.getMessage());
 		}
 	}
