@@ -126,7 +126,7 @@ public class DefaultClient extends BaseClient
 				{
 					try
 					{
-						Log.d("ArduCar", converter.getCurrentVelocities().toString());
+//						Log.d("ArduCar", converter.getCurrentVelocities().toString());
 						
 						sendVelocities(converter.getCurrentVelocities());
 						Thread.sleep(Constants.DEFAULT_UPDATE_INTERVAL);
