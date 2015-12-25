@@ -52,8 +52,8 @@ def parse_velocities(data):
     return data
 
 
-def move_car(velocity_X, velocity_y):
-    print("TODO Complete. X: {0}, Y: {1}".format(velocity_X, velocity_y))
+def move_car(velocity_x, velocity_y):
+    print("TODO Complete. X: {0}, Y: {1}".format(velocity_x, velocity_y))
 
 
 def send_video():
