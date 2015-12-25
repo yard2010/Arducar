@@ -2,6 +2,7 @@
 
 import SocketServer
 import threading
+import sys
 from pubsub import pub
 
 
@@ -13,7 +14,7 @@ CAR_SERVER_PORT = 9081
 
 class ControllerClientHandler(SocketServer.BaseRequestHandler):
     def handle(self):
-        while 1:
+        while True:
             data_received = self.request.recv(4096).strip()
             pub.sendMessage('controller:changed', data=data_received)
 
@@ -47,6 +48,16 @@ class ThreadedCarServer(SocketServer.TCPServer, SocketServer.ThreadingMixIn):
     pass
 
 if __name__ == "__main__":
+
+    # PROBABLY NOT NECESSARY!
+    # Set controller server host ip (first attribute)
+    if len(sys.argv) >= 2:
+        CONTROLLER_SERVER_HOST = sys.argv[1]
+
+    # Set car server host ip (second attribute)
+    if len(sys.argv) >= 3:
+        CONTROLLER_SERVER_HOST = sys.argv[2]
+
     # Run again if client is disconnected
     while True:
         try:

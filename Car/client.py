@@ -1,8 +1,8 @@
 import socket
 import threading
+import sys
 
-# SERVER_IP = "192.168.0.102"
-SERVER_IP = "192.168.123.169"
+SERVER_IP = ""
 SERVER_PORT = 9081
 MAX_MESSAGE_LEN = len("X-100Y-100")
 
@@ -62,9 +62,16 @@ def send_video():
 
 if __name__ == "__main__":
 
+    # Set controller server host ip (first attribute)
+    if len(sys.argv) >= 2:
+        SERVER_IP = sys.argv[1]
+
     while True:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect((SERVER_IP, SERVER_PORT))
+
+        # Keep trying to connect until you get it right
+        while sock.connect_ex((SERVER_IP, SERVER_PORT)) > 0:
+            pass
 
         print "Connected to main server!"
 
