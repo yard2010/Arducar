@@ -1,7 +1,7 @@
 import socket
 import threading
 
-#SERVER_IP = "192.168.0.102"
+# SERVER_IP = "192.168.0.102"
 SERVER_IP = "192.168.123.169"
 SERVER_PORT = 9081
 MAX_MESSAGE_LEN = len("X-100Y-100")
