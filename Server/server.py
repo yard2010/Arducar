@@ -3,6 +3,7 @@
 import SocketServer
 import threading
 import sys
+import logging
 from pubsub import pub
 
 
@@ -30,24 +31,29 @@ class CarClientHandler(SocketServer.BaseRequestHandler):
 
         while is_connected:
             try:
-                print "Car Says: {0}".format(self.request.recv(4096).strip())
+                logging.debug("Car Says: {0}".format(self.request.recv(4096).strip()))
             except Exception:
-                print("Connection forcibly closed")
+                logging.debug("Connection forcibly closed")
                 is_connected = False
 
     def controller_listener(self, data):
-        print 'CarClientHandler: controller:changed event fired with: '
-        print 'data =', data
+        logging.debug('CarClientHandler: controller:changed event fired with: ')
+        logging.debug('data = {0}'.format(data))
         try:
             self.request.send(data)
         except:
-            print("Connection forcibly closed")
+            logging.debug("Connection forcibly closed")
 
 
 class ThreadedCarServer(SocketServer.TCPServer, SocketServer.ThreadingMixIn):
     pass
 
 if __name__ == "__main__":
+
+    # Setup logger
+    logging.basicConfig(filename='log.log', level=logging.DEBUG)
+    ch = logging.StreamHandler(sys.stdout)
+    logging.getLogger().addHandler(ch)
 
     # PROBABLY NOT NECESSARY!
     # Set controller server host ip (first attribute)
@@ -67,8 +73,8 @@ if __name__ == "__main__":
             controller_thread = threading.Thread(target=controller_server.serve_forever, args=(0.005,))
             controller_thread.start()
 
-            print "Started Controller Server on thread: {} on ip: {}".format(controller_thread.name,
-                                                                             controller_server.server_address)
+            logging.debug("Started Controller Server on thread: {} on ip: {}".format(controller_thread.name,
+                                                                                     controller_server.server_address))
 
             car_server = ThreadedCarServer((CAR_SERVER_HOST, CAR_SERVER_PORT),
                                            CarClientHandler)
@@ -76,11 +82,11 @@ if __name__ == "__main__":
             car_thread = threading.Thread(target=car_server.serve_forever, args=(0.005,))
             car_thread.start()
 
-            print "Started Car Server on thread: {} on ip: {}".format(car_thread.name,
-                                                                      car_server.server_address)
+            logging.debug("Started Car Server on thread: {} on ip: {}".format(car_thread.name,
+                                                                              car_server.server_address))
 
             controller_thread.join()
             car_thread.join()
 
         except Exception as e:
-            print e
+            logging.debug(e)

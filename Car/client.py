@@ -1,6 +1,7 @@
 import socket
 import threading
 import sys
+import logging
 
 SERVER_IP = ""
 SERVER_PORT = 9081
@@ -15,10 +16,10 @@ def process_input():
         try:
             data += sock.recv(1024).strip()
         except socket.error:
-            print("Connection forcibly closed")
+            logging.debug("Connection forcibly closed")
             is_connected = False
 
-        print "Received: {}".format(data)
+        logging.debug("Received: {}".format(data))
         data = parse_velocities(data)
 
 
@@ -53,7 +54,7 @@ def parse_velocities(data):
 
 
 def move_car(velocity_x, velocity_y):
-    print("TODO Complete. X: {0}, Y: {1}".format(velocity_x, velocity_y))
+    logging.debug("TODO Complete. X: {0}, Y: {1}".format(velocity_x, velocity_y))
 
 
 def send_video():
@@ -61,6 +62,11 @@ def send_video():
 
 
 if __name__ == "__main__":
+
+    # Setup logger
+    logging.basicConfig(filename='log.log', level=logging.DEBUG)
+    ch = logging.StreamHandler(sys.stdout)
+    logging.getLogger().addHandler(ch)
 
     # Set controller server host ip (first attribute)
     if len(sys.argv) >= 2:
@@ -71,9 +77,9 @@ if __name__ == "__main__":
 
         # Keep trying to connect until you get it right
         while sock.connect_ex((SERVER_IP, SERVER_PORT)) > 0:
-            pass
+            logging.debug("Failed to connect to server. Retrying")
 
-        print "Connected to main server!"
+        logging.debug("Connected to main server!")
 
         # Create and start the two car handling threads
         car_control_thread = threading.Thread(target=process_input)
@@ -84,3 +90,5 @@ if __name__ == "__main__":
 
         video_control_thread.join()
         car_control_thread.join()
+
+        logging.debug("Threads died (connection lost), retrying to connect to server.")
