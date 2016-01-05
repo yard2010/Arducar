@@ -11,36 +11,14 @@ NO_DATA_LIMIT = 10
 
 
 def process_input(read_sock):
-    is_connected = True
     data = ""
-    no_data_count = 0
 
-    # Setting timeout so will not get stuck if no input is given.
-    # This is so that when one socket dies, all others will too.
-    # Timeout value is in seconds
-    read_sock.settimeout(TIMEOUT_VAL)
-
-    while is_connected:
+    while True:
         try:
-            data += read_sock.recv(1024).strip()
-        except (socket.timeout, socket.error) as ex:
-            logging.debug("Controller Process Input: " + str(ex))
-            is_connected = False
-
-        # Make sure there's data, otherwise let thread die
-        if len(data) > 0:
-            logging.debug("Received: {}".format(data))
+            data += read_sock.recv(4096).strip()
             data = parse_velocities(data)
-
-            # Reset count because data has been received
-            no_data_count = 0
-        else:
-            # Data is empty. This could be a problem. Increase counter
-            # If data is empty for NO_DATA_LIMIT times, kill connection
-            if no_data_count < NO_DATA_LIMIT:
-                no_data_count += 1
-            else:
-                is_connected = False
+        except socket.error as ex:
+            logging.debug("Controller Process Input: " + str(ex))
 
 
 def parse_velocities(data):
@@ -81,12 +59,11 @@ def send_video(write_sock):
     # TODO complete this function. Need to stream video. This is a stub
     # write_sock.send("0101 fake video data")
     pass
-
+1
 
 if __name__ == "__main__":
-
     # Setup logger
-    logging.basicConfig(filename='log.log', level=logging.DEBUG)
+    logging.basicConfig(filename='log.log', filemode='w', level=logging.DEBUG)
     ch = logging.StreamHandler(sys.stdout)
     logging.getLogger().addHandler(ch)
 
@@ -94,26 +71,16 @@ if __name__ == "__main__":
     if len(sys.argv) >= 2:
         SERVER_IP = sys.argv[1]
 
-    # TODO This single while should be split into two independent handling threads. SPLIT SOCKETS AS WELL?
-    # Otherwise client will lose connection over either controller OR video timeout
-    # Split sockets or otherwise timeout on the receiving end will kill the sending end and vice versa. Very bad
     while True:
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-        # Keep trying to connect until you get it right
-        while sock.connect_ex((SERVER_IP, SERVER_PORT)) > 0:
-            logging.debug("Failed to connect to server. Retrying")
+        # Bind internet UDP connection socket
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.bind((SERVER_IP, SERVER_PORT))
 
         logging.debug("Connected to main server!")
 
-        # Create and start the two car handling threads
+        # Create and start the car handling thread
         car_control_thread = threading.Thread(target=process_input, args=(sock,))
-        video_control_thread = threading.Thread(target=send_video, args=(sock,))
-
-        video_control_thread.start()
         car_control_thread.start()
-
-        video_control_thread.join()
         car_control_thread.join()
 
         logging.debug("Threads died (connection lost), retrying to connect to server.")
