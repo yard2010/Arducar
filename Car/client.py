@@ -6,12 +6,13 @@ import logging
 SERVER_IP = ""
 SERVER_PORT = 9081
 MAX_MESSAGE_LEN = len("X-100Y-100")
-TIMEOUT_VAL = 5
-NO_DATA_LIMIT = 10
 
 
 def process_input(read_sock):
     data = ""
+
+    # Send initial data to server for acknowledgement
+    read_sock.sendto("", (SERVER_IP, SERVER_PORT))
 
     while True:
         try:
@@ -55,11 +56,11 @@ def move_car(velocity_x, velocity_y):
     logging.debug("TODO Complete. X: {0}, Y: {1}".format(velocity_x, velocity_y))
 
 
-def send_video(write_sock):
+# def send_video(write_sock):
     # TODO complete this function. Need to stream video. This is a stub
     # write_sock.send("0101 fake video data")
-    pass
-1
+    # pass
+
 
 if __name__ == "__main__":
     # Setup logger
@@ -74,7 +75,7 @@ if __name__ == "__main__":
     while True:
         # Bind internet UDP connection socket
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        sock.bind((SERVER_IP, SERVER_PORT))
+        sock.bind((socket.gethostbyname(socket.gethostname()), SERVER_PORT))
 
         logging.debug("Connected to main server!")
 

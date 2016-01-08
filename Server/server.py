@@ -10,7 +10,6 @@ from pubsub import pub
 
 CONTROLLER_SERVER_HOST = ''
 CONTROLLER_SERVER_PORT = 9080
-CAR_SERVER_HOST = ''
 CAR_SERVER_PORT = 9081
 TIMEOUT_VAL = 5
 
@@ -41,8 +40,15 @@ class ThreadedControllerServer(SocketServer.TCPServer, SocketServer.ThreadingMix
 
 
 class CarClientHandler(object):
-    # UDP Connection to internet
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+    def __init__(self):
+        # UDP Connection to internet
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.sock.bind((socket.gethostbyname(socket.gethostname()), CAR_SERVER_PORT))
+        self.car_addr = ""
+
+        # Receive initial message from client to get address
+        self.car_addr = self.sock.recvfrom(1024)[1]
 
     def handle(self):
         pub.subscribe(self.controller_listener, 'controller:changed')
@@ -51,7 +57,7 @@ class CarClientHandler(object):
         logging.debug('CarClientHandler: controller:changed event fired with: ')
         logging.debug('data = {0}'.format(data))
         try:
-            self.sock.sendto(data, (CAR_SERVER_HOST, CAR_SERVER_PORT))
+            self.sock.sendto(data, (self.car_addr, CAR_SERVER_PORT))
         except:
             logging.debug("Connection forcibly closed")
 
@@ -79,10 +85,6 @@ if __name__ == "__main__":
     logging.basicConfig(filename='log.log', filemode='w', level=logging.DEBUG)
     ch = logging.StreamHandler(sys.stdout)
     logging.getLogger().addHandler(ch)
-
-    # Set car server host ip (second attribute)
-    if len(sys.argv) >= 2:
-        CAR_SERVER_HOST = sys.argv[1]
 
     try:
         # Start threads each handling their own client. Only finish main thread if those threads die
