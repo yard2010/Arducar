@@ -48,7 +48,8 @@ class CarClientHandler(object):
         self.car_addr = ""
 
         # Receive initial message from client to get address
-        self.car_addr = self.sock.recvfrom(1024)[1]
+        self.car_addr = self.sock.recvfrom(1024)[1][0]
+        logging.debug("Received initial message from car! Address={0}".format(self.car_addr))
 
     def handle(self):
         pub.subscribe(self.controller_listener, 'controller:changed')
